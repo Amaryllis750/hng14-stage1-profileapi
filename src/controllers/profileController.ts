@@ -79,7 +79,7 @@ const createProfile = async (req: Request, res: Response) => {
 
         nameMeta = await pool.query("INSERT INTO name_metainfo (name, gender, gender_probability, sample_size, age, age_group, country_id, country_probability) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) returning *", [response.name, response.gender, response.gender_probability, response.sample_size, response.age, response.age_group, response.country_id, response.country_probability]);
 
-        return res.status(201).json({ "status": "success", "data": nameMeta.rows });
+        return res.status(201).json({ "status": "success", "data": nameMeta.rows[0] });
     }
     catch (err) {
         console.log(err);
