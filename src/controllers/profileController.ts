@@ -103,16 +103,29 @@ const getProfile = async (req: Request, res: Response) => {
 }
 
 const getProfiles = async (req: Request, res: Response) => {
-    try{
-        const pool = getPool();
-        const result = await pool.query("select * from name_metainfo;");
+    try {
+        const { gender, country_id, age_group } = req.query as {
+            gender?: string;
+            country_id?: string;
+            age_group?: string;
+        };
 
-        return res.json({"status": "success", "count": result.rowCount, "data": result.rows});
+        const pool = getPool();
+
+        const result = await pool.query(
+            `SELECT * FROM name_metainfo 
+             WHERE ($1::text IS NULL OR gender = $1::text) 
+             AND ($2::text IS NULL OR country_id = $2::text) 
+             AND ($3::text IS NULL OR age_group = $3::text);`,
+            [gender || null, country_id || null, age_group || null]
+        );
+
+        return res.json({ status: "success", count: result.rowCount, data: result.rows });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ status: "error", message: "Upstream or server failure" });
     }
-    catch(err){
-        return res.status(500).json({ "status": "error", "message": "Upstream or server failure" });
-    }
-}
+};
 
 const deleteProfile = async (req: Request, res: Response) => {
     try{
